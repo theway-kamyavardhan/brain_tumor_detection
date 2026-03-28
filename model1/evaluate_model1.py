@@ -1,4 +1,3 @@
-# Model 1 Evaluation Script
 import torch
 import torch.nn as nn
 from torchvision import datasets, transforms
@@ -11,10 +10,9 @@ import numpy as np
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_curve, auc
 
-# Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Model Architecture (must match cnn_training.py)
+# architecture must match training
 class CNN(nn.Module):
     def __init__(self):
         super(CNN, self).__init__()
@@ -36,13 +34,13 @@ class CNN(nn.Module):
         return x
 
 def evaluate():
-    # Load Data
+    # preprocessing and data loading
     transform = transforms.Compose([transforms.Resize((224, 224)), transforms.ToTensor()])
     test_dataset = datasets.ImageFolder("../dataset/Testing", transform=transform)
     test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
     class_names = test_dataset.classes
 
-    # Load Model
+    # load the weights
     model = CNN().to(device)
     model.load_state_dict(torch.load("outputs/best_model.pth", map_location=device))
     model.eval()
@@ -58,7 +56,7 @@ def evaluate():
             y_pred.extend(preds.cpu().numpy())
             y_probs.extend(probs.cpu().numpy())
 
-    print("\n===== MODEL 1 CLASSIFICATION REPORT =====")
+    print("\nModel 1 Classification Results:")
     report = classification_report(y_true, y_pred, target_names=class_names, output_dict=True)
     print(classification_report(y_true, y_pred, target_names=class_names))
 

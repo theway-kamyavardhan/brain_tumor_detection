@@ -13,10 +13,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'm
 
 from model2.gradcam import GradCAM
 
+# plot the class probabilities as a horizontal bar chart
 def plot_probability_distribution(probabilities, title="Probability Distribution", color="#007AFF"):
-    """
-    Plots a horizontal bar chart of probabilities using Plotly.
-    """
     classes = list(probabilities.keys())
     probs = [probabilities[c] * 100 for c in classes] # Convert to percentage
 
@@ -50,10 +48,8 @@ def plot_probability_distribution(probabilities, title="Probability Distribution
     
     return fig
 
+# generate grad-cam heatmap overlay
 def generate_gradcam_overlay(image_tensor, model, original_image):
-    """
-    Generates a Grad-CAM heatmap overlay for Model 2.
-    """
     # Specifically for efficientnet base in AdvancedModel
     target_layer = model.features[-1]
     

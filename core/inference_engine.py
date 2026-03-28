@@ -7,13 +7,12 @@ import numpy as np
 from PIL import Image
 from torchvision import transforms
 
-# Add root folder to path so we can import from model1 and model2
+# include model folders for imports
 root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(root_dir)
 sys.path.append(os.path.join(root_dir, 'model1'))
 sys.path.append(os.path.join(root_dir, 'model2'))
 
-# Device configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 import torch.nn as nn
@@ -38,7 +37,7 @@ class CNN(nn.Module):
         x = self.fc(x)
         return x
 
-# Since model2/advanced_model.py is clean, we can import it
+# some weirdness with model2 imports requiring local path
 original_cwd = os.getcwd()
 try:
     os.chdir(os.path.join(root_dir, 'model2'))
@@ -69,7 +68,7 @@ class InferenceEngine:
     def load_models(self):
         if self.model1 is None:
             self.model1 = CNN()
-            # We assume current working directory is the root of the project
+            # load weights
             self.model1.load_state_dict(torch.load("model1/outputs/best_model.pth", map_location=DEVICE))
             self.model1.to(DEVICE)
             self.model1.eval()
@@ -119,14 +118,15 @@ class InferenceEngine:
         
         start_time = time.time()
         
-        self.model2.train()  # ensure dropout is active
+        # MC sampling for uncertainty
+        self.model2.train()  # dropout on
         preds = []
         for _ in range(n_samples):
             output = self.model2(image_tensor)
             probs = F.softmax(output, dim=1)
             preds.append(probs.detach().cpu().numpy())
             
-        self.model2.eval() # restore eval mode
+        self.model2.eval() # restore state
         preds = np.array(preds)
         mean_pred = preds.mean(axis=0)
         uncertainty = preds.var(axis=0)

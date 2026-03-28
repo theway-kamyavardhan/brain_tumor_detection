@@ -1,6 +1,3 @@
-# ===========================
-# IMPORTS
-# ===========================
 import os
 import torch
 from torchvision import datasets, transforms
@@ -9,20 +6,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 from collections import Counter
 
-# ===========================
-# CONFIG
-# ===========================
+# basic hyperparams
 IMG_SIZE = 224
 BATCH_SIZE = 32
 VAL_SPLIT = 0.15
 
 
-# ===========================
-# DATA PIPELINE
-# ===========================
+# create data loaders
 def get_dataloaders(train_path, test_path):
 
-    # -------- TRAIN AUGMENTATION --------
+    # training transforms with some augmentation
     train_transform = transforms.Compose([
         transforms.Resize((IMG_SIZE, IMG_SIZE)),
         transforms.RandomRotation(10),
@@ -31,7 +24,7 @@ def get_dataloaders(train_path, test_path):
         transforms.ToTensor(),  # auto normalize (0-1)
     ])
 
-    # -------- TEST / VALIDATION --------
+    # validation and test transforms
     test_transform = transforms.Compose([
         transforms.Resize((IMG_SIZE, IMG_SIZE)),
         transforms.ToTensor(),
@@ -61,9 +54,7 @@ def get_dataloaders(train_path, test_path):
     return train_loader, val_loader, test_loader, full_dataset.classes
 
 
-# ===========================
-# OPTIONAL: ANALYSIS + VISUALIZATION
-# ===========================
+# analyze or visualize if running as main
 if __name__ == "__main__":
 
     TRAIN_PATH = "../dataset/Training"
@@ -76,7 +67,7 @@ if __name__ == "__main__":
     print("Validation batches:", len(val_loader))
     print("Testing batches:", len(test_loader))
 
-    # -------- CLASS DISTRIBUTION --------
+    # check class counts for imbalance
     labels = []
     for _, y in train_loader:
         labels.extend(y.numpy())
@@ -87,7 +78,7 @@ if __name__ == "__main__":
     for cls, count in class_counts.items():
         print(f"{class_names[cls]}: {count}")
 
-    # -------- SHOW SAMPLE IMAGES --------
+    # plot some samples
     images, labels = next(iter(train_loader))
 
     plt.figure(figsize=(10,10))

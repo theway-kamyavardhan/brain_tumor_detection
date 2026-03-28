@@ -8,28 +8,22 @@ import matplotlib.pyplot as plt
 from advanced_model import AdvancedModel
 from data_loader import get_data_loaders
 
-# 🔥 Device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# 📂 Load data
+# load test data
 train_dir = "../dataset/Training"
 val_dir = "../dataset/Testing"
-
 _, val_loader = get_data_loaders(train_dir, val_dir, batch_size=16)
 
-# 🧠 Class names
 class_names = ['glioma', 'meningioma', 'pituitary', 'notumor']
 
-# 📥 Load model
+# load model
 model = AdvancedModel(num_classes=4)
 model.load_state_dict(torch.load("advanced_model.pth"))
 model.to(device)
 model.eval()
 
-# =========================
-# 📊 COLLECT PREDICTIONS
-# =========================
-
+# run through validation set
 all_preds = []
 all_labels = []
 all_probs = []
@@ -47,19 +41,13 @@ with torch.no_grad():
         all_labels.extend(labels.cpu().numpy())
         all_probs.extend(probs.cpu().numpy())
 
-# =========================
-# 📈 CLASSIFICATION REPORT
-# =========================
-
 from sklearn.preprocessing import label_binarize
 from sklearn.metrics import roc_curve, auc
 
-print("\n===== CLASSIFICATION REPORT =====\n")
+print("\nModel 2 Classification Results:")
 print(classification_report(all_labels, all_preds, target_names=class_names))
 
-# =========================
-# 📈 MULTI-CLASS ROC CURVE
-# =========================
+# generate roc curves
 y_test_bin = label_binarize(all_labels, classes=[0, 1, 2, 3])
 all_probs = np.array(all_probs)
 fpr, tpr, roc_auc = dict(), dict(), dict()
@@ -81,10 +69,7 @@ plt.legend(loc="lower right")
 plt.savefig("plots/roc_curve.png")
 print("ROC curve saved to plots/roc_curve.png")
 
-# =========================
-# 🔥 CONFUSION MATRIX
-# =========================
-
+# confusion matrix
 cm = confusion_matrix(all_labels, all_preds)
 
 plt.figure(figsize=(6,5))
@@ -99,18 +84,12 @@ plt.title("Confusion Matrix")
 plt.savefig("plots/confusion_matrix.png")
 print("Confusion matrix saved to plots/confusion_matrix.png")
 
-# =========================
-# 📊 LOAD TRAINING HISTORY
-# =========================
-
+# load history and plot
 try:
     with open("training_history.pkl", "rb") as f:
         history = pickle.load(f)
 
-    # =========================
-    # 📈 ACCURACY CURVE
-    # =========================
-
+    # accuracy curves
     plt.figure()
     plt.plot(history["train_acc"], label="Train Accuracy")
     plt.plot(history["val_acc"], label="Val Accuracy")
@@ -120,10 +99,7 @@ try:
     plt.legend()
     plt.savefig("plots/accuracy_plot.png")
 
-    # =========================
-    # 📉 LOSS CURVE
-    # =========================
-
+    # loss curves
     plt.figure()
     plt.plot(history["train_loss"], label="Train Loss")
     plt.plot(history["val_loss"], label="Val Loss")

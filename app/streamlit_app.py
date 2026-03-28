@@ -5,13 +5,13 @@ from PIL import Image
 import torch
 import time
 
-# Add root folder to path
+# get the absolute path to import from our other modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from core.inference_engine import InferenceEngine
 from utils.visualization import plot_probability_distribution, generate_gradcam_overlay
 
-# Set page configuration
+# basic app config
 st.set_page_config(
     page_title="Brain Tumor Classification",
     page_icon="🧠",
@@ -19,10 +19,10 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CSS STYLING ---
+# inject custom css for the clinical theme
 st.markdown("""
 <style>
-    /* Dark / Blue medical UI */
+    /* Dark clinical interface */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     
     html, body, [class*="css"] {
@@ -104,11 +104,11 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# --- INIT STATE ---
+# setup session state for result persistence
 @st.cache_resource
 def get_inference_engine():
     engine = InferenceEngine()
-    # Pre-load to avoid delay on first prediction
+    # warm up the models
     engine.load_models()
     return engine
 
@@ -123,14 +123,14 @@ if "current_image" not in st.session_state:
 if "image_source" not in st.session_state:
     st.session_state.image_source = None
 
-# --- SIDEBAR NAV ---
+# Sidebar branding
 st.sidebar.image("https://cdn-icons-png.flaticon.com/512/3024/3024310.png", width=60)
 st.sidebar.title("NeuroScan AI")
 st.sidebar.markdown("<p style='color: #86868b; margin-top: -10px;'>Advanced Brain Tumor Analytics</p>", unsafe_allow_html=True)
 
 nav = st.sidebar.radio("Navigation", ["Home", "Upload & Predict", "Model Comparison", "Grad-CAM Visualization", "Architecture & Research"])
 
-# --- HELPERS ---
+# wrapper for model inference
 def run_analysis(image):
     with st.spinner("Processing MRI through Model 1 (CNN)..."):
         res1 = engine.predict_model1(image)
@@ -143,8 +143,7 @@ def run_analysis(image):
     st.success("Analysis Complete!")
     time.sleep(0.5)
 
-# --- PAGES ---
-
+# Page Routing
 if nav == "Home":
     st.title("Explainable Brain Tumor Classification")
     st.markdown("""
@@ -247,10 +246,11 @@ elif nav == "Upload & Predict":
         st.markdown("---")
         st.subheader("Detailed Model Comparison & Graphs")
         
+        # determine which model to highlight
         more_confident = "Model 1" if r1['confidence'] > r2['confidence'] else "Model 2"
         more_stable = "Model 2"
         
-        # HTML Table for Apple-style presentation in Dark Theme
+        # summary table using custom dark theme styling
         st.markdown(f"""
         <table style="width:100%; text-align:left; background-color:#151e32; color:#e2e8f0; border-radius:12px; overflow:hidden; border-collapse: collapse; border: 1px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
             <tr style="background-color: #0f172a; border-bottom: 2px solid #1e293b;">
@@ -307,11 +307,11 @@ elif nav == "Model Comparison":
         # Comparison Table
         st.markdown("### Performance Metrics")
         
-        # Decide which is more confident / stable
+        # pick more confident or stable model
         more_confident = "Model 1" if r1['confidence'] > r2['confidence'] else "Model 2"
-        more_stable = "Model 2" # Since Model 1 doesn't have uncertainty, Model 2 is the robust one
+        more_stable = "Model 2" 
         
-        # HTML Table for Apple-style presentation in Dark Theme
+        # main results table
         st.markdown(f"""
         <table style="width:100%; text-align:left; background-color:#151e32; color:#e2e8f0; border-radius:12px; overflow:hidden; border-collapse: collapse; border: 1px solid #1e293b; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
             <tr style="background-color: #0f172a; border-bottom: 2px solid #1e293b;">

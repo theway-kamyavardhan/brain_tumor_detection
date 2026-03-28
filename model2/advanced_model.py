@@ -1,4 +1,4 @@
-# Model 2 Architectures: EfficientNet-B0 with Attention Layer
+# EfficientNet-B0 backbone with Attention
 import torch
 import torch.nn as nn
 import torchvision.models as models
@@ -34,7 +34,7 @@ class AdvancedModel(nn.Module):
 
         x = torch.relu(self.fc1(x))
 
-        # 🔥 MC Dropout trick (keep active always)
+        # apply dropout (mc dropout uses this during test)
         x = self.dropout(x)
 
         x = self.fc2(x)

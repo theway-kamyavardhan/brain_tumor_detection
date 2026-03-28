@@ -4,22 +4,18 @@ import torch.nn.functional as F
 
 from advanced_model import AdvancedModel
 
-# 🔥 Device
+# setup device
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# 🧠 Class names
 class_names = ['glioma', 'meningioma', 'pituitary', 'notumor']
 
-# 📥 Load model
+# load the trained model
 model = AdvancedModel(num_classes=4)
 model.load_state_dict(torch.load("advanced_model.pth"))
 model.to(device)
 model.eval()
 
-
-# =========================================
-# 🔮 NORMAL PREDICTION (CLASS + CONFIDENCE)
-# =========================================
+# normal prediction logic
 def predict_image(model, image_tensor):
     image_tensor = image_tensor.to(device)
 
@@ -35,9 +31,10 @@ def predict_image(model, image_tensor):
     return label, confidence
 
 
-# =========================================
-# 🔥 MC DROPOUT (UNCERTAINTY)
-# =========================================
+    return label, confidence
+
+
+# MC Dropout for uncertainty estimation
 def mc_dropout_predict(model, image_tensor, n_samples=20):
     image_tensor = image_tensor.to(device)
 
@@ -64,9 +61,10 @@ def mc_dropout_predict(model, image_tensor, n_samples=20):
     return label, confidence, uncertainty_score
 
 
-# =========================================
-# 🎯 HUMAN-READABLE OUTPUT
-# =========================================
+    return label, confidence, uncertainty_score
+
+
+# convert score to readable label
 def interpret_uncertainty(score):
     if score < 0.01:
         return "Low"
