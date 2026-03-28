@@ -2,6 +2,8 @@
 
 A clinical-grade diagnostic dashboard built on top of customized PyTorch deep learning models to predict brain tumor classifications from MRI scans.
 
+**🌍 Try the Live Application Here:** [https://braintumordetections.streamlit.app/](https://braintumordetections.streamlit.app/)
+
 This system demonstrates a comparative analysis between a baseline Convolutional Neural Network (CNN) and an advanced Vision architecture (EfficientNet-B0 combined with a custom Attention mechanism + MC Dropout), providing interpretable decisions through Grad-CAM algorithms.
 
 ## App Demonstration

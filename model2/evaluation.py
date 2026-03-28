@@ -32,6 +32,7 @@ model.eval()
 
 all_preds = []
 all_labels = []
+all_probs = []
 
 with torch.no_grad():
     for images, labels in val_loader:
@@ -39,17 +40,46 @@ with torch.no_grad():
         labels = labels.to(device)
 
         outputs = model(images)
+        probs = torch.softmax(outputs, dim=1)
         _, preds = torch.max(outputs, 1)
 
         all_preds.extend(preds.cpu().numpy())
         all_labels.extend(labels.cpu().numpy())
+        all_probs.extend(probs.cpu().numpy())
 
 # =========================
 # 📈 CLASSIFICATION REPORT
 # =========================
 
+from sklearn.preprocessing import label_binarize
+from sklearn.metrics import roc_curve, auc
+
 print("\n===== CLASSIFICATION REPORT =====\n")
 print(classification_report(all_labels, all_preds, target_names=class_names))
+
+# =========================
+# 📈 MULTI-CLASS ROC CURVE
+# =========================
+y_test_bin = label_binarize(all_labels, classes=[0, 1, 2, 3])
+all_probs = np.array(all_probs)
+fpr, tpr, roc_auc = dict(), dict(), dict()
+
+plt.figure(figsize=(8, 6))
+colors = ['blue', 'red', 'green', 'orange']
+for i, color in zip(range(4), colors):
+    fpr[i], tpr[i], _ = roc_curve(y_test_bin[:, i], all_probs[:, i])
+    roc_auc[i] = auc(fpr[i], tpr[i])
+    plt.plot(fpr[i], tpr[i], color=color, lw=2, label=f'{class_names[i]} (AUC = {roc_auc[i]:.2f})')
+
+plt.plot([0, 1], [0, 1], 'k--', lw=2)
+plt.xlim([0.0, 1.0])
+plt.ylim([0.0, 1.05])
+plt.xlabel('False Positive Rate')
+plt.ylabel('True Positive Rate')
+plt.title('Model 2 ROC Curve')
+plt.legend(loc="lower right")
+plt.savefig("plots/roc_curve.png")
+print("ROC curve saved to plots/roc_curve.png")
 
 # =========================
 # 🔥 CONFUSION MATRIX
@@ -67,7 +97,7 @@ plt.ylabel("Actual")
 plt.title("Confusion Matrix")
 
 plt.savefig("plots/confusion_matrix.png")
-plt.show()
+print("Confusion matrix saved to plots/confusion_matrix.png")
 
 # =========================
 # 📊 LOAD TRAINING HISTORY
@@ -89,7 +119,6 @@ try:
     plt.title("Training vs Validation Accuracy")
     plt.legend()
     plt.savefig("plots/accuracy_plot.png")
-    plt.show()
 
     # =========================
     # 📉 LOSS CURVE
@@ -103,9 +132,8 @@ try:
     plt.title("Training vs Validation Loss")
     plt.legend()
     plt.savefig("plots/loss_plot.png")
-    plt.show()
 
-    print("✅ Plots saved: accuracy_plot.png, loss_plot.png")
+    print("Plots saved: accuracy_plot.png, loss_plot.png")
 
 except FileNotFoundError:
-    print("⚠️ training_history.pkl not found. Run training first to generate plots.")
+    print("training_history.pkl not found. Run training first to generate plots.")
