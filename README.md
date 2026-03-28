@@ -51,9 +51,16 @@ Designed for superior predictive capabilities, this model bridges transfer learn
 - **Backbone**: `EfficientNet-B0` (Pretrained on ImageNet). Used specifically as a robust feature extractor.
 - **Attention Layer**: A sequence-styled Attention network translates the `1280`-dimensional features to weighted context feature maps, concentrating the model's focus on defining characteristics of the tumors.
 - **Uncertainty Mapping**: Unlike Model 1, Model 2 preserves Dropout layers active during inference. By performing **Monte Carlo Dropout** across 20 forward passes, we retrieve both epistemic uncertainty (variance) and confidence ratings, classifying predictions as either *Low*, *Medium*, or *High* uncertainty.
+- **Inference Stability**: Implemented **Early Stopping** (patience=5) and standard **ImageNet Normalization** to ensure the model generalizes effectively without the validation loss instability seen in early baseline runs.
+
+#### Performance Metrics (Final Model)
+- **Overall Accuracy**: **89-90%** (Macro Avg: 0.90)
+- **Class-Specific Insights**:
+  - **Pituitary/No Tumor**: Near-perfect recapture (**97-99% recall**).
+  - **Glioma/Meningioma**: Strong precision (~0.96 for Glioma), with recall at **0.73** – representing the primary diagnostic challenge needing clinical cross-verification via Grad-CAM.
 
 #### Training Visualizations (Model 2)
-
+*(Generated after Early Stopping at Epoch 10)*
 <div style="display: flex; flex-direction: row; gap: 10px;">
   <img src="model2/plots/accuracy_plot.png" width="300" alt="Accuracy"/>
   <img src="model2/plots/loss_plot.png" width="300" alt="Loss"/>
