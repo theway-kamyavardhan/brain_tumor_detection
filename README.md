@@ -8,7 +8,15 @@ This system demonstrates a comparative analysis between a baseline Convolutional
 
 The Streamlit UI provides an interactive environment to upload images, test models simultaneously, compare their speeds and probabilities, and introspect visual heatmaps.
 
-![NeuroScan AI Dashboard](demo.webp)
+### 1. Unified Dashboard
+![Home UI](screenshots/home_ui.png)
+
+### 2. Live Model Comparison
+![Model Comparison UI](screenshots/model_comparison_ui.png)
+
+### 3. Explainable Grad-CAM Heatmaps
+![Grad-CAM UI](screenshots/gradcam_ui.png)
+
 *Proof of functioning: The application fully operates and evaluates both models simultaneously while visualizing output probability distributions and architecture metrics.*
 
 ---

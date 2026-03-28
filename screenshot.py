@@ -5,42 +5,38 @@ import os
 
 async def main():
     async with async_playwright() as p:
-        browser = await p.chromium.launch()
+        # Launch using Brave Browser as requested
+        browser = await p.chromium.launch(executable_path=r"C:\Program Files\BraveSoftware\Brave-Browser\Application\brave.exe", headless=True)
         page = await browser.new_page(viewport={"width": 1280, "height": 900})
         
-        # Go to home page
+        print("Navigating to local site...")
         await page.goto("http://localhost:8502/")
         await page.wait_for_timeout(3000)
         os.makedirs("screenshots", exist_ok=True)
-        await page.screenshot(path="screenshots/home.png")
+        
+        # 1. Whole UI Screen (Home)
+        await page.screenshot(path="screenshots/home_ui.png", full_page=True)
         print("Captured Home page")
 
-        # Click Upload & Predict
-        await page.locator("text=Upload & Predict").click()
+        # 2. Upload and Predict (Comparisons)
+        await page.locator("p:has-text('Upload & Predict')").first.click()
         await page.wait_for_timeout(2000)
-        await page.screenshot(path="screenshots/upload_initial.png")
-        print("Captured Upload & Predict (initial)")
-
-        # Click Use Default Test Image
-        # st.radio label 'Input Method'
-        await page.locator('text=Use Default Test Image').click()
+        await page.locator('p:has-text("Use Default Test Image")').first.click()
         await page.wait_for_timeout(1000)
         
-        # Click Run Analysis button
         await page.locator('button:has-text("Run Analysis")').click()
-        # Wait for the processing to finish (spinner goes away, success message appears)
         print("Waiting for predictions to finish...")
         await page.wait_for_timeout(10000) # give it 10 seconds to process both models
         
-        # Screenshot the predictions and probability graphs
-        await page.screenshot(path="screenshots/predictions.png", full_page=True)
-        print("Captured Predictions")
+        # Screenshot the Model Comparison UI
+        await page.screenshot(path="screenshots/model_comparison_ui.png", full_page=True)
+        print("Captured Model Comparison UI")
         
-        # Go to Architecture & Research tab
-        await page.locator("text=Architecture & Research").click()
+        # 3. Grad-CAM UI
+        await page.locator("p:has-text('Grad-CAM Visualization')").first.click()
         await page.wait_for_timeout(3000)
-        await page.screenshot(path="screenshots/architecture.png", full_page=True)
-        print("Captured Architecture")
+        await page.screenshot(path="screenshots/gradcam_ui.png", full_page=True)
+        print("Captured Grad-CAM UI")
 
         await browser.close()
 
