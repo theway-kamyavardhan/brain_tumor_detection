@@ -5,3 +5,4 @@ numpy==1.26.4
 Pillow==10.2.0
 opencv-python-headless==4.9.0.80
 plotly==5.20.0
+matplotlib==3.8.3
